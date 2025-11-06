@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - '.github/workflows/pipeline.yml'
-      - 'alerting/**'
+      - 'src/**'
       - 'tests/**'
       - 'pyproject.toml'
       - 'uv.lock'
@@ -41,7 +41,7 @@ jobs:
           use_oidc: true
           verbose: true
       - name: Build artifact
-        run: zip -j lambda.zip alerting/handler.py
+        run: zip -j lambda.zip src/handler.py
       - name: Archive lambda artifact
         uses: actions/upload-artifact@v5
         with:
