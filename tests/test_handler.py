@@ -91,9 +91,9 @@ def test_lambda_handler_http_error(mock_ssm, mock_pool):
         ]
     }
     
-    response = lambda_handler(event, {})
+    with pytest.raises(Exception, match="Failed to send notification: 401"):
+        lambda_handler(event, {})
     
-    assert response['statusCode'] == 200  # Lambda still succeeds
     mock_pool.return_value.request.assert_called_once()
 
 
@@ -109,10 +109,8 @@ def test_lambda_handler_invalid_json():
         ]
     }
     
-    response = lambda_handler(event, {})
-    
-    assert response['statusCode'] == 200
-    assert 'Alerts processed successfully' in response['body']
+    with pytest.raises(Exception):
+        lambda_handler(event, {})
 
 
 def test_lambda_handler_empty_records():
