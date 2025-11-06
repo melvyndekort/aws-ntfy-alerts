@@ -1,0 +1,44 @@
+name: "Terraform"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/terraform.yml'
+      - 'terraform/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+      - name: Terraform Init
+        run: terraform -chdir=terraform init
+      - name: Terraform Validate
+        run: terraform -chdir=terraform validate
+      - name: Terraform Plan
+        run: terraform -chdir=terraform plan -no-color
+        continue-on-error: true
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform -chdir=terraform apply -auto-approve
