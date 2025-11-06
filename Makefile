@@ -20,13 +20,13 @@ decrypt:
 	--ciphertext-blob $$(cat terraform/secrets.yaml.encrypted) \
 	--output text \
 	--query Plaintext \
-	--encryption-context target=alerting | base64 -d > terraform/secrets.yaml
+	--encryption-context target=aws-ntfy-alerts | base64 -d > terraform/secrets.yaml
 
 encrypt:
 	@aws kms encrypt \
 	--key-id alias/generic \
 	--plaintext fileb://terraform/secrets.yaml \
-	--encryption-context target=alerting \
+	--encryption-context target=aws-ntfy-alerts \
 	--output text \
 	--query CiphertextBlob > terraform/secrets.yaml.encrypted
 	@rm -f terraform/secrets.yaml

@@ -1,5 +1,5 @@
 resource "aws_ssm_parameter" "ntfy_token" {
-  name  = "/alerting/ntfy-token"
+  name  = "/aws-ntfy-alerts/ntfy-token"
   type  = "SecureString"
   value = local.secrets.ntfy_token
 
