@@ -35,7 +35,7 @@ aws-ntfy-alerts/
 ## Features
 
 - **SNS Integration**: Subscribes to `aws-notifications` topic
-- **ntfy Notifications**: Sends formatted alerts to ntfy.mdekort.nl/aws
+- **ntfy Notifications**: Sends formatted alerts to configured ntfy endpoint
 - **Automatic Retry**: Lambda fails when ntfy is unreachable or any processing error occurs, triggering SNS automatic retry
 - **Secure Secrets**: Uses KMS-encrypted secrets in Parameter Store
 - **Cost Optimized**: Token cached per Lambda container
@@ -92,10 +92,10 @@ This will:
 ## Configuration
 
 - **S3 Backend**: State stored in `mdekort.tfstate/alerting.tfstate`
-- **KMS Encryption**: Uses `alias/generic` with context `target=alerting`
+- **KMS Encryption**: Uses `alias/generic` with context `target=aws-ntfy-alerts`
 - **Environment Variables**:
   - `NTFY_URL`: Notification endpoint (default: from terraform.tfvars)
-  - `NTFY_TOKEN_PARAMETER`: SSM parameter path
+  - `NTFY_TOKEN_PARAMETER`: SSM parameter path (default: `/alerting/ntfy-token`)
   - `LOG_LEVEL`: Lambda logging level
 
 ## Testing
@@ -117,7 +117,7 @@ aws sns publish --topic-arn "arn:aws:sns:eu-west-1:075673041815:aws-notification
 ## Architecture
 
 1. **AWS Events** → SNS Topic (`aws-notifications`)
-2. **SNS** → Lambda Function (`alerting`)
+2. **SNS** → Lambda Function (`aws-ntfy-alerts`)
 3. **Lambda** → Parameter Store (get ntfy token)
 4. **Lambda** → ntfy API (send notification)
 

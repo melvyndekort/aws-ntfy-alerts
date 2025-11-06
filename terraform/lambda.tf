@@ -1,3 +1,16 @@
+data "archive_file" "placeholder_lambda" {
+  type        = "zip"
+  output_path = "lambda.zip"
+
+  source {
+    filename = "handler.py"
+    content  = <<EOF
+def lambda_handler(event, context):
+  raise NotImplementedError
+EOF
+  }
+}
+
 resource "aws_iam_role" "lambda_role" {
   name = "aws-ntfy-alerts-lambda-role"
 
@@ -46,8 +59,8 @@ resource "aws_lambda_function" "alerting" {
   timeout       = 30
 
   # Use inline code for initial deployment - will be updated by pipeline
-  filename         = "${path.module}/placeholder.zip"
-  source_code_hash = filebase64sha256("${path.module}/placeholder.zip")
+  filename         = data.archive_file.placeholder_lambda.output_path
+  source_code_hash = data.archive_file.placeholder_lambda.output_base64sha256
 
   environment {
     variables = {
