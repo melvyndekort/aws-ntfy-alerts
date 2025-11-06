@@ -5,13 +5,15 @@ import os
 import urllib3
 import boto3
 
-# Initialize outside handler for container reuse
-ssm = boto3.client('ssm')
+# Cache for container reuse
+ssm = None
 ntfy_token = None
 
 def get_ntfy_token():
     """Get ntfy token from Parameter Store, cached for container reuse."""
-    global ntfy_token
+    global ssm, ntfy_token
+    if ssm is None:
+        ssm = boto3.client('ssm')
     if ntfy_token is None:
         parameter_name = os.environ.get('NTFY_TOKEN_PARAMETER', '/alerting/ntfy-token')
         response = ssm.get_parameter(Name=parameter_name, WithDecryption=True)
