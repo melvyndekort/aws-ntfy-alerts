@@ -36,6 +36,7 @@ aws-ntfy-alerts/
 
 - **SNS Integration**: Subscribes to `aws-notifications` topic
 - **ntfy Notifications**: Sends formatted alerts to ntfy.mdekort.nl/aws
+- **Automatic Retry**: Lambda fails when ntfy is unreachable or any processing error occurs, triggering SNS automatic retry
 - **Secure Secrets**: Uses KMS-encrypted secrets in Parameter Store
 - **Cost Optimized**: Token cached per Lambda container
 - **Comprehensive Testing**: 96% test coverage with mocked dependencies

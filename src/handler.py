@@ -66,15 +66,15 @@ def lambda_handler(event, context):
             print(f"Ntfy response: {response.status} - {response.data.decode('utf-8')}")
             
             if response.status != 200:
-                print(f"Failed to send notification: {response.status}")
+                error_msg = f"Failed to send notification: {response.status}"
+                print(error_msg)
+                raise Exception(error_msg)
             else:
                 print("Notification sent successfully")
             
-        except json.JSONDecodeError as e:
-            print(f"Error parsing SNS message: {e}")
-            print(f"Raw message: {sns_message}")
         except Exception as e:
             print(f"Error processing alert: {e}")
+            raise
     
     return {
         'statusCode': 200,
