@@ -11,6 +11,7 @@ on:
       - 'tests/**'
       - 'pyproject.toml'
       - 'uv.lock'
+      - 'codecov.yml'
   pull_request:
     branches:
       - main
@@ -41,7 +42,11 @@ jobs:
           use_oidc: true
           verbose: true
       - name: Build artifact
-        run: zip -j lambda.zip src/handler.py
+        run: |
+          uv build
+          uv run pip install --upgrade --platform manylinux2014_aarch64 --only-binary=":all:" -t package dist/*.whl
+          cd package
+          zip -qr ../lambda.zip . -x '*.pyc'
       - name: Archive lambda artifact
         uses: actions/upload-artifact@v5
         with:
@@ -68,4 +73,4 @@ jobs:
           aws-region: eu-west-1
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
       - name: Deploy Lambda
-        run: aws lambda update-function-code --function-name alerting --zip-file fileb://lambda.zip
+        run: aws lambda update-function-code --function-name aws-ntfy-alerts --zip-file fileb://lambda.zip
