@@ -42,11 +42,7 @@ jobs:
           use_oidc: true
           verbose: true
       - name: Build artifact
-        run: |
-          uv build
-          uv run pip install --upgrade --platform manylinux2014_aarch64 --only-binary=":all:" -t package dist/*.whl
-          cd package
-          zip -qr ../lambda.zip . -x '*.pyc'
+        run: zip -j lambda.zip src/handler.py
       - name: Archive lambda artifact
         uses: actions/upload-artifact@v5
         with:
