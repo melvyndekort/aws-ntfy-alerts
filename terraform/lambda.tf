@@ -39,19 +39,21 @@ resource "aws_iam_role_policy" "lambda_ssm" {
 }
 
 resource "aws_lambda_function" "alerting" {
-  filename         = "lambda.zip"
-  function_name    = "aws-ntfy-alerts"
-  role            = aws_iam_role.lambda_role.arn
-  handler         = "handler.lambda_handler"
-  source_code_hash = filebase64sha256("lambda.zip")
-  runtime         = "python3.12"
-  timeout         = 30
+  function_name = "aws-ntfy-alerts"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "handler.lambda_handler"
+  runtime       = "python3.12"
+  timeout       = 30
+
+  # Use inline code for initial deployment - will be updated by pipeline
+  filename         = "${path.module}/placeholder.zip"
+  source_code_hash = filebase64sha256("${path.module}/placeholder.zip")
 
   environment {
     variables = {
-      LOG_LEVEL = var.log_level
+      LOG_LEVEL            = var.log_level
       NTFY_TOKEN_PARAMETER = aws_ssm_parameter.ntfy_token.name
-      NTFY_URL = var.ntfy_url
+      NTFY_URL             = var.ntfy_url
     }
   }
 
@@ -59,6 +61,13 @@ resource "aws_lambda_function" "alerting" {
     aws_iam_role_policy_attachment.lambda_basic,
     aws_iam_role_policy.lambda_ssm,
   ]
+
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+    ]
+  }
 }
 
 resource "aws_sns_topic_subscription" "alerting" {
