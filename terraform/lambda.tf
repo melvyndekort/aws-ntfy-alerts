@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = "alerting-lambda-role"
+  name = "aws-ntfy-alerts-lambda-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -21,7 +21,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 }
 
 resource "aws_iam_role_policy" "lambda_ssm" {
-  name = "alerting-lambda-ssm"
+  name = "aws-ntfy-alerts-lambda-ssm"
   role = aws_iam_role.lambda_role.id
 
   policy = jsonencode({
@@ -40,7 +40,7 @@ resource "aws_iam_role_policy" "lambda_ssm" {
 
 resource "aws_lambda_function" "alerting" {
   filename         = "lambda.zip"
-  function_name    = "alerting"
+  function_name    = "aws-ntfy-alerts"
   role            = aws_iam_role.lambda_role.arn
   handler         = "handler.lambda_handler"
   source_code_hash = filebase64sha256("lambda.zip")

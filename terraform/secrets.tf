@@ -4,7 +4,7 @@ data "aws_kms_secrets" "secrets" {
     payload = file("secrets.yaml.encrypted")
 
     context = {
-      target = "alerting"
+      target = "aws-ntfy-alerts"
     }
   }
 }
