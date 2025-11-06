@@ -1,0 +1,27 @@
+[project]
+name = "aws-ntfy-alerts"
+version = "0.1.0"
+description = "AWS alerting system that forwards SNS notifications to ntfy"
+authors = [{name = "Melvyn de Kort", email = "melvyn@mdekort.nl"}]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4",
+    "pytest-cov>=7.0",
+    "urllib3>=2",
+    "boto3>=1.40",
+    "moto>=5.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

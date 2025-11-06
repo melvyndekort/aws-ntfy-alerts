@@ -1,0 +1,27 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate
+*.tfstate.*
+secrets.yaml
+
+# Python
+.env
+__pycache__/
+.pytest_cache/
+.coverage
+.venv/
+dist/
+package/
+coverage.xml
+wheelhouse/
+*.zip
+
+# IDE
+.idea/
+.vscode/
+
+# Build artifacts
+lambda.zip
