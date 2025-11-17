@@ -45,9 +45,21 @@ def lambda_handler(event, context):
             message += f"**Event:** {detail_type}\n"
             message += f"**Region:** {region}\n"
             
-            # Add specific details based on event type
+            # Add key details in readable format (limit message size)
             if detail:
-                message += f"**Details:** {json.dumps(detail, indent=2)}\n"
+                important_keys = ['state', 'instance-id', 'status', 'error', 'message', 'reason']
+                for key, value in detail.items():
+                    if len(message) > 800:  # Prevent overly long messages
+                        message += "...(truncated)\n"
+                        break
+                    
+                    if isinstance(value, (dict, list)):
+                        if key.lower() in important_keys or len(str(value)) < 100:
+                            message += f"**{key}:** {json.dumps(value)}\n"
+                        else:
+                            message += f"**{key}:** [complex object]\n"
+                    else:
+                        message += f"**{key}:** {value}\n"
             
             print(f"Alert message: {message}")
             
