@@ -1,1 +1,1 @@
-"""Tests for alerting package."""
+"""Tests for AWS alerting system package."""

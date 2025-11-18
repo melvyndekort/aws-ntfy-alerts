@@ -7,7 +7,7 @@ on:
       - main
     paths:
       - '.github/workflows/pipeline.yml'
-      - 'src/**'
+      - 'aws_ntfy_alerts/**'
       - 'tests/**'
       - 'pyproject.toml'
       - 'uv.lock'

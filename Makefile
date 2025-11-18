@@ -13,7 +13,9 @@ clean:
 	terraform/secrets.yaml \
 	lambda.zip \
 	.pytest_cache \
-	*/__pycache__
+	*/__pycache__ \
+	aws_ntfy_alerts/__pycache__ \
+	tests/__pycache__
 
 decrypt:
 	@aws kms decrypt \
@@ -37,8 +39,12 @@ install:
 test: install
 	@uv run pytest
 
+# Linting
+lint:
+	@uv run pylint aws_ntfy_alerts tests
+
 package:
-	@zip -j terraform/lambda.zip src/handler.py
+	@zip -j terraform/lambda.zip aws_ntfy_alerts/handler.py aws_ntfy_alerts/__init__.py
 
 init:
 	@terraform -chdir=terraform init

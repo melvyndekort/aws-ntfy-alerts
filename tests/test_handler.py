@@ -6,12 +6,12 @@ import pytest
 from moto import mock_aws
 import boto3
 from unittest.mock import patch, MagicMock
-from src.handler import lambda_handler
+from aws_ntfy_alerts.handler import lambda_handler
 
 
 @mock_aws
-@patch('src.handler.urllib3.PoolManager')
-@patch('src.handler.ssm')
+@patch('aws_ntfy_alerts.handler.urllib3.PoolManager')
+@patch('aws_ntfy_alerts.handler.ssm')
 def test_lambda_handler_success(mock_ssm, mock_pool):
     """Test successful processing of SNS event with HTTP request."""
     # Mock SSM response
@@ -61,8 +61,8 @@ def test_lambda_handler_success(mock_ssm, mock_pool):
 
 
 @mock_aws
-@patch('src.handler.urllib3.PoolManager')
-@patch('src.handler.ssm')
+@patch('aws_ntfy_alerts.handler.urllib3.PoolManager')
+@patch('aws_ntfy_alerts.handler.ssm')
 def test_lambda_handler_http_error(mock_ssm, mock_pool):
     """Test handling of HTTP error response."""
     mock_ssm.get_parameter.return_value = {
@@ -124,8 +124,8 @@ def test_lambda_handler_empty_records():
 
 
 @mock_aws
-@patch('src.handler.urllib3.PoolManager')
-@patch('src.handler.ssm')
+@patch('aws_ntfy_alerts.handler.urllib3.PoolManager')
+@patch('aws_ntfy_alerts.handler.ssm')
 def test_multiple_records(mock_ssm, mock_pool):
     """Test processing multiple SNS records."""
     mock_ssm.get_parameter.return_value = {
