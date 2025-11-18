@@ -42,7 +42,7 @@ jobs:
           use_oidc: true
           verbose: true
       - name: Build artifact
-        run: zip -j lambda.zip src/handler.py
+        run: zip -j lambda.zip aws_ntfy_alerts/handler.py aws_ntfy_alerts/__init__.py
       - name: Archive lambda artifact
         uses: actions/upload-artifact@v5
         with:
