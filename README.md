@@ -10,7 +10,7 @@ This Lambda-based system receives AWS events from SNS topics, formats them into 
 
 ```
 aws-ntfy-alerts/
-├── src/                # Python source code
+├── aws_ntfy_alerts/    # Python source code
 │   ├── __init__.py
 │   └── handler.py      # Lambda handler
 ├── terraform/          # Infrastructure as Code
@@ -23,7 +23,7 @@ aws-ntfy-alerts/
 │   ├── terraform.tfvars # Variable values
 │   └── secrets.yaml.encrypted # Encrypted secrets
 ├── tests/              # Test suite
-│   └── test_handler.py # Comprehensive tests with 96% coverage
+│   └── test_handler.py # Comprehensive tests with 94% coverage
 ├── .github/            # GitHub workflows
 │   └── workflows/
 │       └── pipeline.yml # CI/CD pipeline
@@ -35,11 +35,12 @@ aws-ntfy-alerts/
 ## Features
 
 - **SNS Integration**: Subscribes to `aws-notifications` topic
-- **ntfy Notifications**: Sends formatted alerts to configured ntfy endpoint
+- **Mobile-Optimized Notifications**: Clean title + minimal body format for better mobile readability
+- **Timezone Conversion**: Automatically converts timestamps to Europe/Amsterdam timezone
 - **Automatic Retry**: Lambda fails when ntfy is unreachable or any processing error occurs, triggering SNS automatic retry
 - **Secure Secrets**: Uses KMS-encrypted secrets in Parameter Store
 - **Cost Optimized**: Token cached per Lambda container
-- **Comprehensive Testing**: 96% test coverage with mocked dependencies
+- **Comprehensive Testing**: 94% test coverage with mocked dependencies
 
 ## Development
 
@@ -59,8 +60,14 @@ make install
 # Run tests
 make test
 
+# Lint code
+make lint
+
 # Package Lambda
 make package
+
+# Clean build artifacts
+make clean
 ```
 
 ### Secrets Management
@@ -79,15 +86,21 @@ make decrypt
 ### Deployment
 
 ```bash
-# Deploy everything
+# Deploy infrastructure
+make apply
+
+# Update Lambda code only
 make deploy
 ```
 
-This will:
+The `apply` target will:
 1. Decrypt secrets
-2. Package Lambda code
-3. Initialize Terraform with S3 backend
-4. Apply infrastructure changes
+2. Initialize Terraform with S3 backend
+3. Apply infrastructure changes
+
+The `deploy` target will:
+1. Package Lambda code
+2. Update the existing Lambda function
 
 ## Configuration
 
@@ -103,8 +116,8 @@ This will:
 Run the comprehensive test suite:
 
 ```bash
-make test                    # Run all tests
-uv run pytest --cov=src     # With coverage report
+make test                           # Run all tests
+uv run pytest --cov=aws_ntfy_alerts # With coverage report
 ```
 
 Test a live deployment:
