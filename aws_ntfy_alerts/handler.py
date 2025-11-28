@@ -79,6 +79,18 @@ def lambda_handler(event, _context):  # pylint: disable=too-many-locals
                 message += f"\nMessage: {detail['errorMessage']}"
             if 'responseElements' in detail and detail['responseElements']:
                 message += f"\nResponse: {str(detail['responseElements'])[:100]}"
+            
+            # Add identity information for STS events
+            user_identity = detail.get('userIdentity', {})
+            if user_identity.get('type'):
+                message += f"\nUser Type: {user_identity['type']}"
+            if user_identity.get('arn'):
+                message += f"\nUser ARN: {user_identity['arn']}"
+            if detail.get('eventName'):
+                message += f"\nEvent: {detail['eventName']}"
+            request_params = detail.get('requestParameters', {})
+            if request_params.get('roleArn'):
+                message += f"\nRole ARN: {request_params['roleArn']}"
 
             print(f"Alert message: {message}")
 
