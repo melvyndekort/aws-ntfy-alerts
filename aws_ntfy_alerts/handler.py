@@ -71,6 +71,14 @@ def lambda_handler(event, _context):  # pylint: disable=too-many-locals
                 message += f"\nAlarm: {detail['alarm-name']}"
             if 'reason' in detail:
                 message += f"\nReason: {detail['reason']}"
+            if 'instance-id' in detail:
+                message += f"\nInstance: {detail['instance-id']}"
+            if 'errorCode' in detail:
+                message += f"\nError: {detail['errorCode']}"
+            if 'errorMessage' in detail:
+                message += f"\nMessage: {detail['errorMessage']}"
+            if 'responseElements' in detail and detail['responseElements']:
+                message += f"\nResponse: {str(detail['responseElements'])[:100]}"
 
             print(f"Alert message: {message}")
 
