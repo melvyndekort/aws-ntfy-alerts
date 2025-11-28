@@ -44,7 +44,7 @@ lint:
 	@uv run pylint aws_ntfy_alerts tests
 
 package:
-	@zip -j terraform/lambda.zip aws_ntfy_alerts/handler.py aws_ntfy_alerts/__init__.py
+	@zip -j lambda.zip aws_ntfy_alerts/handler.py aws_ntfy_alerts/__init__.py
 
 init:
 	@terraform -chdir=terraform init
@@ -52,7 +52,8 @@ init:
 validate: init
 	@terraform -chdir=terraform validate
 
-apply: validate package
+apply: validate decrypt
 	@terraform -chdir=terraform apply -input=true -refresh=true
 
-deploy: apply
+deploy: package
+	@aws lambda update-function-code --function-name aws-ntfy-alerts --zip-file fileb://lambda.zip

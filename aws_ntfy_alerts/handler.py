@@ -1,11 +1,16 @@
 """Lambda handler for AWS alerting system."""
 
 import json
+import logging
 import os
 from datetime import datetime
 import zoneinfo
 import urllib3
 import boto3  # pylint: disable=import-error
+
+# Configure logging
+logger = logging.getLogger()
+logger.setLevel(os.getenv('LOG_LEVEL', 'INFO'))
 
 # Cache for container reuse
 SSM = None
@@ -79,7 +84,7 @@ def lambda_handler(event, _context):  # pylint: disable=too-many-locals
                 'Authorization': f'Bearer {token}',
                 'Title': title,
                 'Priority': '3',
-                'Tags': '🚨'
+                'Tags': 'alert'
             }
 
             response = http.request('POST', ntfy_url, body=message.encode('utf-8'), headers=headers)
