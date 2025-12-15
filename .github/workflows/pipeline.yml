@@ -44,7 +44,7 @@ jobs:
       - name: Build artifact
         run: zip -j lambda.zip aws_ntfy_alerts/handler.py aws_ntfy_alerts/__init__.py
       - name: Archive lambda artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: lambda
           path: lambda.zip
