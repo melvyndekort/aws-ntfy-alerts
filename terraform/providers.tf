@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "mdekort.tfstate"
+    bucket       = "mdekort-tfstate-075673041815"
     key          = "alerting.tfstate"
     region       = "eu-west-1"
     encrypt      = true
