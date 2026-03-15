@@ -104,7 +104,7 @@ The `deploy` target will:
 
 ## Configuration
 
-- **S3 Backend**: State stored in `mdekort.tfstate/alerting.tfstate`
+- **S3 Backend**: State stored in `mdekort-tfstate-075673041815/alerting.tfstate`
 - **KMS Encryption**: Uses `alias/generic` with context `target=aws-ntfy-alerts`
 - **Environment Variables**:
   - `NTFY_URL`: Notification endpoint (default: from terraform.tfvars)
