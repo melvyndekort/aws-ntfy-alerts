@@ -1,22 +1,46 @@
 # Security Policy
 
+## Reporting Security Vulnerabilities
+
+If you discover a security vulnerability in this project, please report it responsibly:
+
+### How to Report
+
+- **Email**: [security@mdekort.nl](mailto:security@mdekort.nl)
+- **Subject**: `[SECURITY] aws-ntfy-alerts vulnerability report`
+
+### What to Include
+
+Please provide the following information:
+- Description of the vulnerability
+- Steps to reproduce the issue
+- Potential impact assessment
+- Suggested remediation (if known)
+
+### Response Timeline
+
+- **Acknowledgment**: Within 48 hours
+- **Initial assessment**: Within 1 week
+- **Resolution**: Depends on severity and complexity
+
+## Security Considerations
+
+### ⚠️ Important Disclaimers
+
+This repository contains code for personal use. Users should be aware:
+
+- **No warranty**: Code provided "as is" without security guarantees
+- **Review required**: Always review code before deployment
+- **Environment-specific**: Adapt security settings for your use case
+- **Credentials**: Never commit secrets or credentials to version control
+
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+Security updates are provided for:
 
-## Reporting a Vulnerability
+| Version | Supported |
+|---------|-----------|
+| Latest  | ✅        |
+| Previous| ❌        |
 
-If you discover a security vulnerability within this project, please send an email to melvyn@mdekort.nl. All security vulnerabilities will be promptly addressed.
-
-Please do not report security vulnerabilities through public GitHub issues.
-
-## Security Measures
-
-This project implements the following security measures:
-
-- AWS IAM roles with least privilege access
-- KMS encryption for sensitive data
-- Secure handling of environment variables
-- Regular dependency updates via Dependabot
+Only the latest version receives security updates. Please ensure you're using the most recent version.
