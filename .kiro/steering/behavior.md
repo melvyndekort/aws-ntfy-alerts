@@ -19,7 +19,7 @@ Terraform creates the Lambda with dummy code and `ignore_changes` on `source_cod
 - `aws_ntfy_alerts/` — Lambda handler source
 - `tests/` — Test suite (uses moto for AWS mocking)
 - `terraform/` — Lambda, IAM, SNS subscription, SSM parameters
-- `Makefile` — `install`, `test`, `lint`, `package`, `deploy`, `init`, `apply`, `decrypt`, `encrypt`
+- `Makefile` — `install`, `test`, `lint`, `format`, `package`, `deploy`, `init`, `apply`, `decrypt`, `encrypt`
 
 ## Terraform Details
 
