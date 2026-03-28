@@ -57,3 +57,13 @@ apply: validate decrypt
 
 deploy: package
 	@aws lambda update-function-code --function-name aws-ntfy-alerts --zip-file fileb://lambda.zip
+
+format: install
+	@uv run ruff format .
+	@uv run ruff check --fix .
+
+update-deps:
+	@uv sync --upgrade --all-extras
+
+plan: init decrypt
+	@terraform -chdir=terraform plan
