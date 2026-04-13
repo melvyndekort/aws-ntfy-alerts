@@ -10,7 +10,7 @@ dependencies = []
 dev = [
     "pytest>=9.0.3",
     "pytest-cov>=7.0",
-    "urllib3>=2",
+    "urllib3>=2.6.3",
     "boto3>=1.42.88",
     "moto>=5.1",
 ]
