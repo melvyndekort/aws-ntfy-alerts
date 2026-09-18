@@ -23,7 +23,7 @@ aws-ntfy-alerts/
 │   ├── terraform.tfvars # Variable values
 │   └── secrets.yaml.encrypted # Encrypted secrets
 ├── tests/              # Test suite
-│   └── test_handler.py # Comprehensive tests with 94% coverage
+│   └── test_handler.py # Comprehensive tests with 100% coverage
 ├── .github/            # GitHub workflows
 │   └── workflows/
 │       └── pipeline.yml # CI/CD pipeline
@@ -35,12 +35,24 @@ aws-ntfy-alerts/
 ## Features
 
 - **SNS Integration**: Subscribes to `aws-notifications` topic
-- **Mobile-Optimized Notifications**: Clean title + minimal body format for better mobile readability
+- **Source-Specific Formatting**: Dedicated formatters for CloudWatch alarms, EC2/ECS/Auto
+  Scaling events, ACM expiry, Lambda deployments, Budgets, AWS Health, and CloudTrail-driven
+  security events (root sign-in, IAM/security-group/S3-policy changes, role assumption),
+  each rendered as markdown with only the fields that matter for that event type
+- **Severity-Aware Priority**: ntfy priority and tags reflect real severity — e.g. a
+  security group opened to `0.0.0.0/0` or a root console sign-in is urgent, a routine role
+  assumption is low priority, a recovered alarm is low priority
+- **Tap-Through Console Links**: Notifications for EC2, CloudWatch alarms, ECS, Lambda, ACM,
+  Budgets, and AWS Health link straight to the relevant AWS console page
+- **Dual Alarm Formats**: Understands both EventBridge-wrapped events and native CloudWatch
+  Alarm SNS messages (alarms that publish to SNS directly instead of via EventBridge)
+- **Graceful Fallback**: Any event type without a dedicated formatter still produces a
+  readable notification with a raw JSON block, instead of being dropped or mangled
 - **Timezone Conversion**: Automatically converts timestamps to Europe/Amsterdam timezone
 - **Automatic Retry**: Lambda fails when ntfy is unreachable or any processing error occurs, triggering SNS automatic retry
 - **Secure Secrets**: Uses KMS-encrypted secrets in Parameter Store
 - **Cost Optimized**: Token cached per Lambda container
-- **Comprehensive Testing**: 94% test coverage with mocked dependencies
+- **Comprehensive Testing**: 100% test coverage with mocked dependencies
 
 ## Development
 
@@ -111,6 +123,37 @@ The `deploy` target will:
   - `NTFY_TOKEN_PARAMETER`: SSM parameter path (default: `/alerting/ntfy-token`)
   - `LOG_LEVEL`: Lambda logging level
 
+## Notification Design
+
+Each SNS message is routed to a dedicated formatter based on its `source`/`detail-type`
+(EventBridge events) or the presence of `AlarmName` (native CloudWatch Alarm SNS messages).
+A formatter builds a short title, a markdown body with only the fields that matter, an ntfy
+priority (1 min – 5 urgent), a tag, and — where the target is unambiguous — a console
+deep-link. Anything without a dedicated formatter still produces a readable notification
+(source, time, and a raw JSON block of the `detail`) instead of being dropped or mangled.
+
+| Source | Priority | Notes |
+|---|---|---|
+| CloudWatch Alarm → `ALARM` (native or EventBridge) | 5 urgent | Links to the alarm in the console |
+| CloudWatch Alarm → `OK` | 2 low | Recovery, not urgent |
+| Root console sign-in | 5 urgent | Reports whether MFA was used |
+| Security group rule opened to `0.0.0.0/0` | 5 urgent | Rule flagged explicitly in the body |
+| Other security-group / IAM / S3-policy change | 4 high | |
+| CloudTrail API call denied (`errorCode` set) | priority + 1 (capped at 5) | Title marked `(denied)` |
+| AWS Health issue | 5 urgent | `scheduledChange`/`accountNotification` stay default |
+| Budget alert | 4 high | |
+| Auto Scaling launch/terminate failure | 4 high | |
+| ECS task stopped with a non-zero container exit | 4 high | |
+| EC2 instance terminated | 4 high | `stopped` is default, `stopping` is low |
+| ACM certificate expiring in ≤7 days | 4 high | Otherwise default |
+| STS role assumption | 2 low | Routine unless denied |
+| Lambda deployment update, EBS attach/detach | 2 low | |
+| Anything unrecognized | 3 default | Raw JSON fallback |
+
+New EventBridge rules or alarms need a matching entry in the `REGISTRY` dict (or the
+`CLOUDTRAIL_HANDLERS` dict for CloudTrail-sourced API calls) in `aws_ntfy_alerts/handler.py`
+to get dedicated formatting — otherwise they fall through to the generic formatter above.
+
 ## Testing
 
 Run the comprehensive test suite:
@@ -120,11 +163,16 @@ make test                           # Run all tests
 uv run pytest --cov=aws_ntfy_alerts # With coverage report
 ```
 
-Test a live deployment:
+Test a live deployment (an EC2 state-change event, formatted with a console deep-link):
 
 ```bash
 aws sns publish --topic-arn "arn:aws:sns:eu-west-1:075673041815:aws-notifications" \
-  --message '{"source": "aws.ec2", "detail-type": "Test Alert", "region": "eu-west-1"}'
+  --message '{
+    "source": "aws.ec2",
+    "detail-type": "EC2 Instance State-change Notification",
+    "region": "eu-west-1",
+    "detail": {"instance-id": "i-1234567890abcdef0", "state": "stopped"}
+  }'
 ```
 
 ## Architecture
@@ -134,4 +182,6 @@ aws sns publish --topic-arn "arn:aws:sns:eu-west-1:075673041815:aws-notification
 3. **Lambda** → Parameter Store (get ntfy token)
 4. **Lambda** → ntfy API (send notification)
 
-The Lambda processes each SNS record, extracts event details, formats a readable message, and posts it to your ntfy instance with proper authentication.
+The Lambda processes each SNS record, dispatches it to the matching formatter (see
+[Notification Design](#notification-design)), and posts the resulting title/body/priority/tags/click
+to your ntfy instance with proper authentication.
