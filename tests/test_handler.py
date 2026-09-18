@@ -658,6 +658,8 @@ def test_get_ntfy_token_creates_ssm_client_when_uncached():
     handler.SSM = None
     handler.NTFY_TOKEN = None
     os.environ["NTFY_TOKEN_PARAMETER"] = "/alerting/ntfy-token"
+    previous_region = os.environ.get("AWS_DEFAULT_REGION")
+    os.environ["AWS_DEFAULT_REGION"] = "eu-west-1"
 
     boto3.client("ssm", region_name="eu-west-1").put_parameter(
         Name="/alerting/ntfy-token", Value="real-token", Type="SecureString"
@@ -668,6 +670,10 @@ def test_get_ntfy_token_creates_ssm_client_when_uncached():
     assert token == "real-token"
     handler.SSM = None
     handler.NTFY_TOKEN = None
+    if previous_region is None:
+        del os.environ["AWS_DEFAULT_REGION"]
+    else:
+        os.environ["AWS_DEFAULT_REGION"] = previous_region
 
 
 def test_local_time_missing():
