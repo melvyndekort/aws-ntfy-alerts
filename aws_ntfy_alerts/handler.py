@@ -628,7 +628,10 @@ def send_to_ntfy(http: urllib3.PoolManager, notification: Notification) -> None:
     ntfy_url = os.environ.get("NTFY_URL", "https://ntfy.sh/alerts")
     headers = {
         "Authorization": f"Bearer {get_ntfy_token()}",
-        "Title": notification.title,
+        # http.client latin-1-encodes str header values but leaves bytes untouched,
+        # so a non-ASCII title (emoji) must be sent as UTF-8 bytes to avoid a
+        # UnicodeEncodeError.
+        "Title": notification.title.encode("utf-8"),
         "Priority": str(notification.priority),
         "Tags": notification.tags,
         "Markdown": "yes",

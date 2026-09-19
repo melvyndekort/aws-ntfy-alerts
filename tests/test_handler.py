@@ -716,3 +716,30 @@ def test_send_to_ntfy_without_click_header():
 
     handler.SSM = None
     handler.NTFY_TOKEN = None
+
+
+def test_send_to_ntfy_emoji_title_is_utf8_encoded():
+    """An emoji title must survive http.client's latin-1 header encoding.
+
+    http.client.putheader() latin-1-encodes str header values but leaves
+    bytes untouched, so a title with non-ASCII characters (every real
+    formatter emits one, e.g. the "🎭 Role assumed" title) has to be sent
+    as UTF-8 bytes or the request raises UnicodeEncodeError.
+    """
+    notification = Notification(title="🎭 Role assumed", message="m", click=None)
+    http = MagicMock()
+    mock_response = MagicMock(status=200)
+    mock_response.data.decode.return_value = "ok"
+    http.request.return_value = mock_response
+
+    handler.SSM = MagicMock()
+    handler.NTFY_TOKEN = "tok"
+
+    handler.send_to_ntfy(http, notification)
+
+    headers = http.request.call_args[1]["headers"]
+    assert headers["Title"] == "🎭 Role assumed".encode()
+    assert isinstance(headers["Title"], bytes)
+
+    handler.SSM = None
+    handler.NTFY_TOKEN = None
