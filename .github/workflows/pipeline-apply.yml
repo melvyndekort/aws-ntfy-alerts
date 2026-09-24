@@ -1,0 +1,58 @@
+name: "Pipeline Apply"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/pipeline-apply.yml'
+      - 'aws_ntfy_alerts/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'codecov.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          version: "latest"
+      - name: Set up Python
+        run: uv python install
+      - name: Install dependencies
+        run: uv sync --all-extras
+      - name: Build artifact
+        run: zip -j lambda.zip aws_ntfy_alerts/handler.py aws_ntfy_alerts/__init__.py
+      - name: Archive lambda artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: lambda
+          path: lambda.zip
+          if-no-files-found: error
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: lambda
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      - name: Deploy Lambda
+        run: aws lambda update-function-code --function-name aws-ntfy-alerts --zip-file fileb://lambda.zip
