@@ -14,7 +14,7 @@ updates:
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     rebase-strategy: "auto"
     assignees:
       - "melvyndekort"
@@ -24,7 +24,7 @@ updates:
   - package-ecosystem: "terraform"
     directory: "/terraform"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     rebase-strategy: "auto"
     assignees:
       - "melvyndekort"
